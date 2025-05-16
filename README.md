@@ -5,45 +5,29 @@
 
 ## 项目结构
 
- BankExchangeRateSpider
+```
 
-├─ config.py
-
-├─ main.py
-
-├─ README.md
-
-├─ requirements.txt
-
-│
-
-├─data
-
-│      cib_fx.csv
-
-│
-
-├─parse
-
-│  ├─  cib.py
-
-│  └─  \_\_init\_\_.py
-
-├─storage
-
-│  ├─  save_csv.py
-
-│  └─  \_\_init\_\_.py
-
-│ 
-
-│
-
-└─utils
-
-​     ├─ common.py
-
-​     └─ \_\_init\_\_.py
+BankExchangeRateSpider 
+ ├─ config.py 
+ ├─ main.py 
+ ├─ README.md 
+ ├─ requirements.txt 
+ │ 
+ ├─ data 
+ │   └─ cib_fx.csv 
+ │ 
+ ├─ parse 
+ │   ├─ cib.py 
+ │   └─ __init__.py 
+ │ 
+ ├─ storage 
+ │   ├─ save_csv.py 
+ │   └─ __init__.py 
+ │ 
+ └─ utils 
+     ├─ common.py 
+     └─ __init__.py 
+```
 
 ## 快速开始
 
