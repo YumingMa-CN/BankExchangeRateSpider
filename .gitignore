@@ -10,5 +10,5 @@ __pycache__/
 venv/
 env/
 .idea/
-!data/
 data/*
+!data/.gitkeep
