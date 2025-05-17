@@ -5,8 +5,9 @@ import re
 import json
 import time
 
+__all__ = ['get_data']
 
-def parse_page(html):
+def _parse_page(html):
     """
         根据正则提取汇率数据
     """
@@ -17,20 +18,20 @@ def parse_page(html):
     return json.loads(m.group(1))
 
 
-def convert_api_data(data):
+def _convert_api_data(data):
     """
     将数据转换为字典列表
     """
     result = []
     rows = data["rows"]
-    headers = ["币种名称", "币种代码", "基准金额", "现汇买入价", "现钞买入价", "现汇卖出价", "现钞卖出价"]
+    headers = ["币种名称", "币种代码", "基准金额", "现汇买入价", "现汇卖出价", "现钞买入价", "现钞卖出价"]
     for row in rows:
         d = dict(zip(headers, row["cell"]))
         result.append(d)
     return result
 
 
-def attach_metadata_to_table(table, update_time, **kwargs):
+def _attach_metadata_to_table(table, update_time, **kwargs):
     """
     增加元数据（如采集时间/银行等）到所有行
     table: list[dict]
@@ -47,7 +48,7 @@ def attach_metadata_to_table(table, update_time, **kwargs):
     return table
 
 
-def extract_time_from_html(html):
+def _extract_time_from_html(html):
     """
     从html中提取时间字符串，返回类似 '2025-05-16 16:23:35'
     """
@@ -66,12 +67,14 @@ def get_data():
     获取兴业银行的汇率数据
     :return : list[dict]，每个字典代表一行数据
     """
-    url_html = BANKS['cib']['url_html']  # 兴业银行的汇率数据页面
     timestamp = int(time.time() * 1000)  # 获取当前时间戳
+    url_business = BANKS['cib']['url_business']  # 兴业银行的汇率业务官网页面
     url_api = BANKS['cib']['url_api'].format(timestamp=timestamp)  # 兴业银行的API数据链接
-    html, api_data = fetch_html(url_html, url_api, timeout=10000)   # 获取网页内容,api数据内容
-    update_time = extract_time_from_html(html)  # 提取时间字符串
-    json_data = parse_page(api_data)
-    data_list_of_dict = convert_api_data(json_data)
-    pure_data = attach_metadata_to_table(data_list_of_dict, update_time)
+    visit_business = BANKS['cib']['visit_business']  # 是否访问业务官网
+    visit_api = BANKS['cib']['visit_api']  # 是否访问API
+    html, api_data = fetch_html(url_business, url_api, visit_business, visit_api, timeout=10000)   # 获取网页内容,api数据内容
+    update_time = _extract_time_from_html(html)  # 提取时间字符串
+    json_data = _parse_page(api_data)
+    data_list_of_dict = _convert_api_data(json_data)
+    pure_data = _attach_metadata_to_table(data_list_of_dict, update_time)
     return pure_data

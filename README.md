@@ -6,7 +6,6 @@
 ## 项目结构
 
 ```
-
 BankExchangeRateSpider 
  ├─ config.py 
  ├─ main.py 
