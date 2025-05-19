@@ -80,12 +80,12 @@ def safe_float(x):
     except (TypeError, ValueError):
         return None
 
-def convert_1to_100_rate(x):
-    """乘100并保留最多4位小数，去掉无意义0和小数点"""
+
+def scale_rate(x, rate_scale, fill_data=''): # 处理汇率数据
     try:
-        v = float(x) * 100
-        # 保留4位小数，但去掉多余的0和小数点
-        s = "{:.4f}".format(v).rstrip('0').rstrip('.')
+        v = float(x) * rate_scale
+        s = "{:.4f}".format(v).rstrip('.')
         return s
-    except (TypeError, ValueError):
-        return ""
+
+    except Exception:
+        return fill_data

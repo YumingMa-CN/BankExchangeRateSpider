@@ -1,4 +1,4 @@
-from utils.common import fetch_html, convert_1to_100_rate
+from utils.common import fetch_html, scale_rate
 from config import BANKS, abbr2cname, digit2abbr
 import re
 import json
@@ -37,11 +37,11 @@ def _convert_api_data(root):
             "币种名称": cn_name,
             "币种代码": abbr,
             "基准金额": 100,
-            "现汇买入价": convert_1to_100_rate(settlement.findtext("BidRateOfCcy", "").strip()),
-            "现钞买入价": convert_1to_100_rate(settlement.findtext("BidRateOfCash", "").strip()),
-            "现汇卖出价": convert_1to_100_rate(settlement.findtext("OfrRateOfCcy", "").strip()),
-            "现钞卖出价": convert_1to_100_rate(settlement.findtext("OfrRateOfCash", "").strip()),
-            "中间价": convert_1to_100_rate(settlement.findtext("Mdl_ExRt_Prc", "").strip()),
+            "现汇买入价": scale_rate(settlement.findtext("BidRateOfCcy", "").strip(), 100),
+            "现钞买入价": scale_rate(settlement.findtext("BidRateOfCash", "").strip(), 100),
+            "现汇卖出价": scale_rate(settlement.findtext("OfrRateOfCcy", "").strip(), 100),
+            "现钞卖出价": scale_rate(settlement.findtext("OfrRateOfCash", "").strip(), 100),
+            "中间价": scale_rate(settlement.findtext("Mdl_ExRt_Prc", "").strip(), 100),
             "更新时间":
                 '{} {}:{}:{}'.format(
                     settlement.findtext("LstPr_Dt", "")[:4] + '-' +
