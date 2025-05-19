@@ -1,4 +1,3 @@
-# 兴业银行
 from utils.common import fetch_html
 from config import BANKS
 import re
