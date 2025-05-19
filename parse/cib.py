@@ -6,6 +6,8 @@ import json
 import time
 
 __all__ = ['get_data']
+CODE = 'cib'
+
 
 def _parse_page(html):
     """
@@ -68,10 +70,10 @@ def get_data():
     :return : list[dict]，每个字典代表一行数据
     """
     timestamp = int(time.time() * 1000)  # 获取当前时间戳
-    url_business = BANKS['cib']['url_business']  # 兴业银行的汇率业务官网页面
-    url_api = BANKS['cib']['url_api'].format(timestamp=timestamp)  # 兴业银行的API数据链接
-    visit_business = BANKS['cib']['visit_business']  # 是否访问业务官网
-    visit_api = BANKS['cib']['visit_api']  # 是否访问API
+    url_business = BANKS[CODE]['url_business']  # 兴业银行的汇率业务官网页面
+    url_api = BANKS[CODE]['url_api'].format(timestamp=timestamp)  # 兴业银行的API数据链接
+    visit_business = BANKS[CODE]['visit_business']  # 是否访问业务官网
+    visit_api = BANKS[CODE]['visit_api']  # 是否访问API
     html, api_data = fetch_html(url_business, url_api, visit_business, visit_api, timeout=10000)   # 获取网页内容,api数据内容
     update_time = _extract_time_from_html(html)  # 提取时间字符串
     json_data = _parse_page(api_data)

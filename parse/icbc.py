@@ -6,8 +6,7 @@ import time
 
 
 __all__ = ['get_data']
-CODE = 'cmb'
-
+CODE = 'icbc'
 
 def _parse_page(html):
     """
@@ -25,28 +24,27 @@ def _convert_api_data(data):
     将数据转换为字典列表
     """
     # a sample of data is:
-    #  {"returnCode": "SUC0000", "errorMsg": null, "body": [
-    #     #     {"ccyNbr": "港币", "ccyNbrEng": "港币 HKD", "rtbBid": "92.39", "rthOfr": "92.57", "rtcOfr": "92.57",
-    #     #      "rthBid": "92.21", "rtcBid": "92.21", "ratTim": "20:51:57", "ratDat": "2025年05月17日", "ccyExc": "10"},
-    #     #     {"ccyNbr": "新西兰元", "ccyNbrEng": "新西兰元 NZD", "rtbBid": "424.68", "rthOfr": "426.38", "rtcOfr": "426.38",
-    #     #      "rthBid": "422.98", "rtcBid": "422.98", "ratTim": "20:51:57", "ratDat": "2025年05月17日", "ccyExc": "10"},
-    #     #     ]}
+    # {"code":0,"message":"success","data":[
+    # {"currencyType":"012","currencyCHName":"英镑","currencyENName":"GBP","reference":"959.48","foreignBuy":"956.70","foreignSell":"963.89","cashBuy":"956.70","cashSell":"963.89","publishDate":"2025-05-19","publishTime":"10:49:59"},
+    # {"currencyType":"013","currencyCHName":"港币","currencyENName":"HKD","reference":"92.27","foreignBuy":"92.13","foreignSell":"92.51","cashBuy":"92.13","cashSell":"92.51","publishDate":"2025-05-19","publishTime":"10:49:59"}
+    # ]}
     result = []
-    rows = data["body"]
+    rows = data["data"]
     # headers = ["币种名称", "币种代码", "基准金额", "现汇买入价", "现钞买入价", "现汇卖出价", "现钞卖出价", "更新时间", "采集时间", "银行"]
     collecting_time = time.strftime("%Y-%m-%d %H:%M:%S", time.localtime())
     for row in rows:
         item = {
-            "币种名称": row.get("ccyNbr", ""),
-            "币种代码": row.get("ccyNbrEng", "").split(" ")[-1],
+            "币种名称": row.get("currencyCHName", ""),
+            "币种代码": row.get("currencyENName", ""),
             "基准金额": 100,
-            "现汇买入价": row.get("rthBid", ""),
-            "现钞买入价": row.get("rtcBid", ""),
-            "现汇卖出价": row.get("rthOfr", row.get("rtcOfr", "")),  # 若无rtbOfr则用rthOfr
-            "现钞卖出价": row.get("rtcOfr", row.get("rthOfr")),
-            "更新时间": row.get("ratDat", "").replace("年", "-").replace("月", "-").replace("日", " ") + row.get("ratTim", ""),
+            "参考价": row.get("reference", ""),
+            "现汇买入价": row.get("foreignBuy", ""),
+            "现钞买入价": row.get("cashBuy", ""),
+            "现汇卖出价": row.get("foreignSell", row.get("cashSell", "")),
+            "现钞卖出价": row.get("cashSell", row.get("foreignSell")),
+            "更新时间": row.get("publishDate", "") + ' ' + row.get("publishTime", ""),
             "采集时间": collecting_time,
-            "银行": "招商银行"
+            "银行": "工商银行",
         }
         result.append(item)
     return result
