@@ -1,9 +1,8 @@
-from utils.common import fetch_html
+from utils.common import fetch_html, scale_rate
 from config import BANKS
 import re
 import json
 import time
-
 
 __all__ = ['get_data']
 CODE = 'cmb'
@@ -40,16 +39,18 @@ def _convert_api_data(data):
             "币种名称": row.get("ccyNbr", ""),
             "币种代码": row.get("ccyNbrEng", "").split(" ")[-1],
             "基准金额": 100,
-            "现汇买入价": row.get("rthBid", ""),
-            "现钞买入价": row.get("rtcBid", ""),
-            "现汇卖出价": row.get("rthOfr", row.get("rtcOfr", "")),  # 若无rtbOfr则用rthOfr
-            "现钞卖出价": row.get("rtcOfr", row.get("rthOfr")),
-            "更新时间": row.get("ratDat", "").replace("年", "-").replace("月", "-").replace("日", " ") + row.get("ratTim", ""),
+            "现汇买入价": scale_rate(row.get("rthBid", ""), filling_data='-'),
+            "现钞买入价": scale_rate(row.get("rtcBid", ""), filling_data='-'),
+            "现汇卖出价": scale_rate(row.get("rthOfr", row.get("rtcOfr", "")), filling_data='-'),
+            "现钞卖出价": scale_rate(row.get("rtcOfr", row.get("rthOfr")), filling_data='-'),
+            "更新时间": row.get("ratDat", "").replace("年", "-").replace("月", "-").replace("日", " ") + row.get(
+                "ratTim", ""),
             "采集时间": collecting_time,
             "银行": BANKS[CODE]['name'],
         }
         result.append(item)
     return result
+
 
 def get_data():
     """

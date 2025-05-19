@@ -1,4 +1,4 @@
-from utils.common import fetch_html
+from utils.common import fetch_html, scale_rate
 from config import BANKS
 import re
 import json
@@ -41,11 +41,11 @@ def _convert_api_data(data):
             "币种名称": row.get("CurrName", "").split("(")[0].strip(),
             "币种代码": row.get("CurrName", "").split("(")[-1].replace(")", "").strip(),
             "基准金额": 100,
-            "参考价": row.get("BenchMarkPrice", ""),
-            "现汇买入价": row.get("BuyingPrice", ""),
-            "现钞买入价": row.get("CashBuyingPrice", ""),
-            "现汇卖出价": row.get("SellPrice", row.get("cashSell", "")),
-            "现钞卖出价": row.get("SellPrice", row.get("foreignSell")),
+            "参考价": scale_rate(row.get("BenchMarkPrice", ""), filling_data='-'),
+            "现汇买入价": scale_rate(row.get("BuyingPrice", "") ,filling_data='-'),
+            "现钞买入价": scale_rate(row.get("CashBuyingPrice", ""),  filling_data='-'),
+            "现汇卖出价": scale_rate(row.get("SellPrice", row.get("cashSell", "")),  filling_data='-'),
+            "现钞卖出价": scale_rate(row.get("SellPrice", row.get("foreignSell")),  filling_data='-'),
             "更新时间": row.get("PublishTime", "").replace("T", " ").replace("+08:00", ""),
             "采集时间": collecting_time,
             "银行": BANKS[CODE]['name'],

@@ -81,11 +81,11 @@ def safe_float(x):
         return None
 
 
-def scale_rate(x, rate_scale, fill_data=''): # 处理汇率数据
+def scale_rate(x, rate_scale=1, filling_data=''): # 处理汇率数据
     try:
         v = float(x) * rate_scale
         s = "{:.4f}".format(v).rstrip('.')
         return s
 
     except Exception:
-        return fill_data
+        return filling_data

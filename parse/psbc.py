@@ -1,4 +1,4 @@
-from utils.common import fetch_html
+from utils.common import fetch_html, scale_rate
 from config import BANKS, abbr2cname
 import re
 import json
@@ -37,14 +37,14 @@ def _convert_api_data(data):
     for row in rows[:-1]:
         item = {
             "币种名称": abbr2cname.get(row.get("cur", ""),
-                ""),
+                                       ""),
             "币种代码": row.get("cur", ""),
             "基准金额": 100,
-            "现汇买入价": row.get("fe_buy_prc", ""),
-            "现钞买入价": row.get("fc_buy_prc", ""),
-            "现汇卖出价": row.get("fe_sell_prc", row.get("fc_sell_prc", "")),
-            "现钞卖出价": row.get("fe_sell_prc", row.get("fc_sell_prc", "")),
-            "中间价": row.get("mid_prc", ""),
+            "现汇买入价": scale_rate(row.get("fe_buy_prc", ""), filling_data='-'),
+            "现钞买入价": scale_rate(row.get("fc_buy_prc", ""), filling_data='-'),
+            "现汇卖出价": scale_rate(row.get("fe_sell_prc", row.get("fc_sell_prc", "")), filling_data='-'),
+            "现钞卖出价": scale_rate(row.get("fe_sell_prc", row.get("fc_sell_prc", "")), filling_data='-'),
+            "中间价": scale_rate(row.get("mid_prc", ""), filling_data='-'),
             # 日期每隔两个字符加一个 -
             "更新时间":
                 '-'.join(

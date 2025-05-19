@@ -1,7 +1,6 @@
 from utils.common import fetch_html, scale_rate
 from config import BANKS, abbr2cname, digit2abbr
 import re
-import json
 import time
 import xml.etree.ElementTree as ET
 
@@ -30,18 +29,18 @@ def _convert_api_data(root):
 
     for settlement in root.findall('ReferencePriceSettlement'):
         digit_code = settlement.findtext("Ofrd_Ccy_CcyCd", "").strip()  # 数字代码，如840
-        abbr = digit2abbr.get(digit_code, digit_code)                # 英文缩写
-        cn_name = abbr2cname.get(abbr, abbr)                         # 中文名
-
+        abbr = digit2abbr.get(digit_code, digit_code)  # 英文缩写
+        cn_name = abbr2cname.get(abbr, abbr)  # 中文名
+        rate_scale = 100
         item = {
             "币种名称": cn_name,
             "币种代码": abbr,
             "基准金额": 100,
-            "现汇买入价": scale_rate(settlement.findtext("BidRateOfCcy", "").strip(), 100),
-            "现钞买入价": scale_rate(settlement.findtext("BidRateOfCash", "").strip(), 100),
-            "现汇卖出价": scale_rate(settlement.findtext("OfrRateOfCcy", "").strip(), 100),
-            "现钞卖出价": scale_rate(settlement.findtext("OfrRateOfCash", "").strip(), 100),
-            "中间价": scale_rate(settlement.findtext("Mdl_ExRt_Prc", "").strip(), 100),
+            "现汇买入价": scale_rate(settlement.findtext("BidRateOfCcy", "").strip(), rate_scale),
+            "现钞买入价": scale_rate(settlement.findtext("BidRateOfCash", "").strip(), rate_scale),
+            "现汇卖出价": scale_rate(settlement.findtext("OfrRateOfCcy", "").strip(), rate_scale),
+            "现钞卖出价": scale_rate(settlement.findtext("OfrRateOfCash", "").strip(), rate_scale),
+            "中间价": scale_rate(settlement.findtext("Mdl_ExRt_Prc", "").strip(), rate_scale),
             "更新时间":
                 '{} {}:{}:{}'.format(
                     settlement.findtext("LstPr_Dt", "")[:4] + '-' +

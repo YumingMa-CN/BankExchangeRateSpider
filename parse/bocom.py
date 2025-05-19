@@ -1,7 +1,6 @@
 from utils.common import fetch_html, scale_rate
 from config import BANKS
 import re
-import json
 import time
 
 __all__ = ['get_data']

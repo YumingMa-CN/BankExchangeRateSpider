@@ -23,12 +23,30 @@ def _parse_page(html):
 def _convert_api_data(data):
     """
     将数据转换为字典列表
+    数据格式示例：
+    {"page":"1","records":"13","total":"1","sidx":"","sort":"asc","rows":[{"cell":
+        ["欧元","EUR","100.00","808.87","815.36","783.30","814.96"],"id":"0"},
+        {"cell":["英镑","GBP","100.00","960.48","968.19","930.12","967.71"],"id":"1"},
+    ]}
     """
     result = []
     rows = data["rows"]
     headers = ["币种名称", "币种代码", "基准金额", "现汇买入价", "现汇卖出价", "现钞买入价", "现钞卖出价"]
     for row in rows:
-        d = dict(zip(headers, row["cell"]))
+        cells = []
+        for idx, v in enumerate(row["cell"]):
+            if idx<=2:
+                # 前两个值是币种名称和币种代码
+                v = v.strip()
+            else:
+                try:
+                    # 尝试将值转为 float 并保留四位小数
+                    f = float(v)
+                    v = f"{f:.4f}"
+                except ValueError:
+                    pass
+            cells.append(v)
+        d = dict(zip(headers, cells))
         result.append(d)
     return result
 
@@ -74,7 +92,7 @@ def get_data():
     url_api = BANKS[CODE]['url_api'].format(timestamp=timestamp)  # 兴业银行的API数据链接
     visit_business = BANKS[CODE]['visit_business']  # 是否访问业务官网
     visit_api = BANKS[CODE]['visit_api']  # 是否访问API
-    html, api_data = fetch_html(url_business, url_api, visit_business, visit_api, timeout=10000)   # 获取网页内容,api数据内容
+    html, api_data = fetch_html(url_business, url_api, visit_business, visit_api, timeout=10000)  # 获取网页内容,api数据内容
     update_time = _extract_time_from_html(html)  # 提取时间字符串
     json_data = _parse_page(api_data)
     data_list_of_dict = _convert_api_data(json_data)

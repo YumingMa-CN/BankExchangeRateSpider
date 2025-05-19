@@ -1,5 +1,5 @@
-from utils.common import fetch_html
-from config import BANKS, BANK_CODE
+from utils.common import fetch_html, scale_rate
+from config import BANKS
 import re
 import json
 import time
@@ -37,11 +37,11 @@ def _convert_api_data(data):
             "币种名称": row.get("currencyCHName", ""),
             "币种代码": row.get("currencyENName", ""),
             "基准金额": 100,
-            "参考价": row.get("reference", ""),
-            "现汇买入价": row.get("foreignBuy", ""),
-            "现钞买入价": row.get("cashBuy", ""),
-            "现汇卖出价": row.get("foreignSell", row.get("cashSell", "")),
-            "现钞卖出价": row.get("cashSell", row.get("foreignSell")),
+            "参考价": scale_rate(row.get("reference", ""), filling_data='-'),
+            "现汇买入价": scale_rate(row.get("foreignBuy", ""), filling_data='-'),
+            "现钞买入价": scale_rate(row.get("cashBuy", ""), filling_data='-'),
+            "现汇卖出价": scale_rate(row.get("foreignSell", row.get("cashSell", "")), filling_data='-'),
+            "现钞卖出价": scale_rate(row.get("cashSell", row.get("foreignSell")), filling_data='-'),
             "更新时间": row.get("publishDate", "") + ' ' + row.get("publishTime", ""),
             "采集时间": collecting_time,
             "银行": BANKS[CODE]['name'],
