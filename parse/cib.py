@@ -36,8 +36,7 @@ def _convert_api_data(data):
         cells = []
         for idx, v in enumerate(row["cell"]):
             if idx<=2:
-                # 前两个值是币种名称和币种代码
-                v = v.strip()
+                v = str(v).strip().rstrip('0').rstrip('.')
             else:
                 try:
                     # 尝试将值转为 float 并保留四位小数
