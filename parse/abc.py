@@ -48,7 +48,7 @@ def _convert_api_data(data):
             "现钞卖出价": row.get("SellPrice", row.get("foreignSell")),
             "更新时间": row.get("PublishTime", "").replace("T", " ").replace("+08:00", ""),
             "采集时间": collecting_time,
-            "银行": "农业银行",
+            "银行": BANKS[CODE]['name'],
         }
         result.append(item)
     return result

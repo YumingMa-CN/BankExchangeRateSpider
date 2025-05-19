@@ -46,7 +46,7 @@ def _convert_api_data(data):
             "现钞卖出价": row.get("rtcOfr", row.get("rthOfr")),
             "更新时间": row.get("ratDat", "").replace("年", "-").replace("月", "-").replace("日", " ") + row.get("ratTim", ""),
             "采集时间": collecting_time,
-            "银行": "招商银行"
+            "银行": BANKS[CODE]['name'],
         }
         result.append(item)
     return result

@@ -44,7 +44,7 @@ def _attach_metadata_to_table(table, update_time, **kwargs):
     for row in table:
         row['更新时间'] = update_time
         row['采集时间'] = collecting_time
-        row['银行'] = '兴业银行'
+        row['银行'] = BANKS[CODE]['name']
         for k, v in kwargs.items():
             row[k] = v
     return table
