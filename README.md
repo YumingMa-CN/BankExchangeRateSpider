@@ -49,7 +49,7 @@ pip install -r requirements.txt
 python main.py
 ```
 
-运行后会抓取最新汇率数据，并保存到 `data/cib_fx.csv`
+运行后会抓取最新汇率数据，并保存到 `data/{bank_code}.csv`
 
 ## 如何扩展新银行
 
