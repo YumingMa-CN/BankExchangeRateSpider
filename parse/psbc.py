@@ -1,5 +1,5 @@
 from utils.common import fetch_html
-from config import BANKS, CURRENCY_CODE
+from config import BANKS, abbr2cname
 import re
 import json
 import time
@@ -36,7 +36,7 @@ def _convert_api_data(data):
     collecting_time = time.strftime("%Y-%m-%d %H:%M:%S", time.localtime())
     for row in rows[:-1]:
         item = {
-            "币种名称": CURRENCY_CODE.get(row.get("cur", ""),
+            "币种名称": abbr2cname.get(row.get("cur", ""),
                 ""),
             "币种代码": row.get("cur", ""),
             "基准金额": 100,

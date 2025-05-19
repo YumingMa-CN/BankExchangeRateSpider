@@ -73,3 +73,19 @@ def shutdown_playwright():
         print("Playwright stopped.")
     else:
         print("Playwright is already stopped.")
+
+def safe_float(x):
+    try:
+        return float(x)
+    except (TypeError, ValueError):
+        return None
+
+def convert_1to_100_rate(x):
+    """乘100并保留最多4位小数，去掉无意义0和小数点"""
+    try:
+        v = float(x) * 100
+        # 保留4位小数，但去掉多余的0和小数点
+        s = "{:.4f}".format(v).rstrip('0').rstrip('.')
+        return s
+    except (TypeError, ValueError):
+        return ""
