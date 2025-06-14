@@ -1,3 +1,8 @@
+SAVE_CSV = True  # 是否保存为 CSV 文件
+SAVE_DB = True  # 是否保存到数据库
+
+DB_URI = "mysql+pymysql://username:password@localhost:3306/database_name?charset=utf8"
+
 BANKS = {
     'cib': {
         'code': 'cib',
@@ -5,7 +10,7 @@ BANKS = {
         'url_business': 'https://personalbank.cib.com.cn/pers/main/pubinfo/ifxQuotationQuery.do',
         'url_api': 'https://personalbank.cib.com.cn/pers/main/pubinfo/ifxQuotationQuery/list?_search=false&dataSet.nd'
                    '={timestamp}&dataSet.rows=80&dataSet.page=1&dataSet.sidx=&dataSet.sort=asc',
-        'output': 'data/cib_fx.csv',
+        'output': 'data/cib_fx_{timestamp}.csv',  # 输出文件名，{timestamp} 会被替换为当前时间戳
         'visit_business': True,     # 是否访问业务页面，可以获取 api_url 中不包含的数据，并且可以通过访问以携带正常 cookies 等。
         'visit_api': True,
         'interval': 60, # 建议采集间隔时间（秒）
@@ -15,7 +20,7 @@ BANKS = {
         'name': '招商银行',
         'url_business': 'https://fx.cmbchina.com/Hq/',
         'url_api': 'https://fx.cmbchina.com/api/v1/fx/rate',
-        'output': 'data/cmb_fx.csv',
+        'output': 'data/cmb_fx_{timestamp}.csv',
         'visit_business': False,
         'visit_api': True,
         'interval': 60,
@@ -25,7 +30,7 @@ BANKS = {
         'name': '工商银行',
         'url_business': 'https://open.icbc.com.cn/icbc/apip/api_list.html#',
         'url_api': 'https://papi.icbc.com.cn/exchanges/ns/getLatest',
-        'output': 'data/icbc_fx.csv',
+        'output': 'data/icbc_fx_{timestamp}.csv',
         'visit_business': False,
         'visit_api': True,
         'interval': 60,
@@ -35,7 +40,7 @@ BANKS = {
         'name': '农业银行',
         'url_business': 'https://app.abchina.com/static/app/ll/ExchangeRate/',
         'url_api': 'https://ewealth.abchina.com/app/data/api/DataService/ExchangeRateV2',
-        'output': 'data/abc_fx.csv',
+        'output': 'data/abc_fx_{timestamp}.csv',
         'visit_business': False,
         'visit_api': True,
         'interval': 60,
@@ -45,7 +50,7 @@ BANKS = {
         'name': '中国邮政储蓄银行',
         'url_business': 'https://www.psbc.com/cn/common/bjfw/whpjcx/',
         'url_api': 'https://s.psbc.com/portal/PsbcService/foreignexchange/curr',
-        'output': 'data/psbc_fx.csv',
+        'output': 'data/psbc_fx_{timestamp}.csv',
         'visit_business': False,
         'visit_api': True,
         'interval': 60,
@@ -55,7 +60,7 @@ BANKS = {
         'name': '中国建设银行',
         'url_business': 'https://ebank2.ccb.com/chn/forex/exchange-quotations.shtml',
         'url_api': 'https://www2.ccb.com/cn/home/news/jshckpj_new.xml',
-        'output': 'data/ccb_fx.csv',
+        'output': 'data/ccb_fx_{timestamp}.csv',
         'visit_business': False,
         'visit_api': True,
         'interval': 60,
@@ -65,7 +70,7 @@ BANKS = {
         'name': '交通银行',
         'url_business': 'https://www.bankcomm.com/BankCommSite/zonghang/cn/newWhpj/foreignExchangeSearch_Cn.html',
         'url_api': 'https://www.bankcomm.com/BankCommSite/zh-cn/personal/forex/forexQuotation.html',
-        'output': 'data/bocom_fx.csv',
+        'output': 'data/bocom_fx_{timestamp}.csv',
         'visit_business': True,
         'visit_api': False,
         'interval': 60,
@@ -75,7 +80,7 @@ BANKS = {
         'name': '中国银行',
         'url_business': 'https://www.boc.cn/sourcedb/whpj/index.html',
         'url_api': '',
-        'output': 'data/boc_fx.csv',
+        'output': 'data/boc_fx_{timestamp}.csv',
         'visit_business': True,
         'visit_api': False,
         'interval': 60,
@@ -83,7 +88,140 @@ BANKS = {
     # 其他银行...
 }
 
-# 各国家货币代码对照表
+# 各银行字段到数据库标准字段的映射
+FIELD_MAP = {
+    # 中国银行 Bank Of China (boc)
+    'boc': {
+        "currency_name": "币种名称",
+        "currency_code": "币种代码",
+        "base_amount": "基准金额",
+        "refer_price": "参考价",         # 部分数据有参考价
+        "remit_buy": "现汇买入价",
+        "cash_buy": "现钞买入价",
+        "remit_sell": "现汇卖出价",
+        "cash_sell": "现钞卖出价",
+        "convert_price": "中行折算价",   # 特有
+        "mid_price": None,              # 无中间价
+        "update_time": "更新时间",
+        "crawl_time": "采集时间",
+        "bank": "银行"
+    },
+    # 建设银行 China Construction Bank (ccb)
+    'ccb': {
+        "currency_name": "币种名称",
+        "currency_code": "币种代码",
+        "base_amount": "基准金额",
+        "refer_price": None,
+        "remit_buy": "现汇买入价",
+        "cash_buy": "现钞买入价",
+        "remit_sell": "现汇卖出价",
+        "cash_sell": "现钞卖出价",
+        "mid_price": "中间价",
+        "convert_price": None,
+        "update_time": "更新时间",
+        "crawl_time": "采集时间",
+        "bank": "银行"
+    },
+    # 农业银行 Agricultural Bank of China (abc)
+    'abc': {
+        "currency_name": "币种名称",
+        "currency_code": "币种代码",
+        "base_amount": "基准金额",
+        "refer_price": "参考价",
+        "remit_buy": "现汇买入价",
+        "cash_buy": "现钞买入价",
+        "remit_sell": "现汇卖出价",
+        "cash_sell": "现钞卖出价",
+        "convert_price": None,
+        "mid_price": None,
+        "update_time": "更新时间",
+        "crawl_time": "采集时间",
+        "bank": "银行"
+    },
+    # 工商银行 Industrial and Commercial Bank of China (icbc)
+    'icbc': {
+        "currency_name": "币种名称",
+        "currency_code": "币种代码",
+        "base_amount": "基准金额",
+        "refer_price": "参考价",
+        "remit_buy": "现汇买入价",
+        "cash_buy": "现钞买入价",
+        "remit_sell": "现汇卖出价",
+        "cash_sell": "现钞卖出价",
+        "convert_price": None,    # 无折算价
+        "mid_price": None,
+        "update_time": "更新时间",
+        "crawl_time": "采集时间",
+        "bank": "银行"
+    },
+    # 交通银行 Bank of Communications (bocom)
+    'bocom': {
+        "currency_name": "币种名称",
+        "currency_code": "币种代码",
+        "base_amount": "基准金额",
+        "refer_price": None,
+        "remit_buy": "现汇买入价",
+        "cash_buy": "现钞买入价",
+        "remit_sell": "现汇卖出价",
+        "cash_sell": "现钞卖出价",
+        "mid_price": None,
+        "convert_price": None,
+        "update_time": "更新时间",
+        "crawl_time": "采集时间",
+        "bank": "银行"
+    },
+    # 兴业银行 Industrial Bank Co., Ltd. (cib)
+    'cib': {
+        "currency_name": "币种名称",
+        "currency_code": "币种代码",
+        "base_amount": "基准金额",
+        "refer_price": None,
+        "remit_buy": "现汇买入价",
+        "cash_buy": "现钞买入价",
+        "remit_sell": "现汇卖出价",
+        "cash_sell": "现钞卖出价",
+        "mid_price": None,
+        "convert_price": None,
+        "update_time": "更新时间",
+        "crawl_time": "采集时间",
+        "bank": "银行"
+    },
+    # 招商银行 China Merchants Bank (cmb)
+    'cmb': {
+        "currency_name": "币种名称",
+        "currency_code": "币种代码",
+        "base_amount": "基准金额",
+        "refer_price": None,
+        "remit_buy": "现汇买入价",
+        "cash_buy": "现钞买入价",
+        "remit_sell": "现汇卖出价",
+        "cash_sell": "现钞卖出价",
+        "mid_price": None,
+        "convert_price": None,
+        "update_time": "更新时间",
+        "crawl_time": "采集时间",
+        "bank": "银行"
+    },
+    # 中国邮政储蓄银行 Postal Savings Bank of China (psbc)
+    'psbc': {
+        "currency_name": "币种名称",
+        "currency_code": "币种代码",
+        "base_amount": "基准金额",
+        "refer_price": None,
+        "remit_buy": "现汇买入价",
+        "cash_buy": "现钞买入价",
+        "remit_sell": "现汇卖出价",
+        "cash_sell": "现钞卖出价",
+        "mid_price": "中间价",
+        "convert_price": None,
+        "update_time": "更新时间",
+        "crawl_time": "采集时间",
+        "bank": "银行"
+    },
+}
+
+
+# 各国家货币代码对照表，非必要勿修改
 abbr2cname = {
     'USD': '美元',
     'EUR': '欧元',

@@ -1,5 +1,7 @@
 import time
 from playwright.sync_api import sync_playwright
+from datetime import datetime
+from config import FIELD_MAP
 
 
 # 全局变量
@@ -87,3 +89,37 @@ def scale_rate(x, rate_scale=1, filling_data=''): # 处理汇率数据
 
     except Exception:
         return filling_data
+
+
+def row_to_db(row: dict, bank_code: str) -> dict:
+    fmap = FIELD_MAP[bank_code]
+
+    def safe_float(s):
+        try:
+            return float(s) if s not in ('-', '', None) else None
+        except Exception:
+            return None
+
+    def time_parse(s, default=None):
+        try:
+            if not s: return default
+            return datetime.strptime(s, "%Y-%m-%d %H:%M:%S")
+        except Exception:
+            return default
+
+    return {
+        "currency_name": row.get(fmap['currency_name']),
+        "currency_code": row.get(fmap['currency_code']),
+        "base_amount": safe_float(row.get(fmap['base_amount'])),
+        "remit_buy": safe_float(row.get(fmap['remit_buy'])),
+        "cash_buy": safe_float(row.get(fmap['cash_buy'])),
+        "remit_sell": safe_float(row.get(fmap['remit_sell'])),
+        "cash_sell": safe_float(row.get(fmap['cash_sell'])),
+        "convert_price": safe_float(row.get(fmap.get('convert_price'))),
+        "mid_price": safe_float(row.get(fmap.get('mid_price'))) if fmap.get('mid_price') else None,
+        "refer_price": safe_float(row.get(fmap.get('refer_price'))) if fmap.get('refer_price') else None,
+        "update_time": time_parse(row.get(fmap['update_time'])),
+        "crawl_time": time_parse(row.get(fmap['crawl_time'])),
+        "bank": row.get(fmap['bank']),
+        "ext_json": None, # remaining fields are not used in this version
+    }
