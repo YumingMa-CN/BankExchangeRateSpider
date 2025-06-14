@@ -1,2 +1,4 @@
-pandas==2.0.1
+pandas~=2.3.0
 playwright==1.52.0
+SQLAlchemy~=2.0.41
+pymysql~=1.1.1
