@@ -31,7 +31,7 @@ if __name__ == '__main__':
                     save_to_csv(data,
                                 settings['output'].format(timestamp=time.strftime("%Y%m%d_%H%M%S", time.localtime(now))))
                     print("数据已保存到 {output}\n".format(
-                    output=settings['output'].format(timestamp=time.strftime("%Y%m%d_%H%M%S", time.localtime(now)))))
+                      output=settings['output'].format(timestamp=time.strftime("%Y%m%d_%H%M%S", time.localtime(now)))))
 
                 if SAVE_DB:
                     # 转换字段 保存到数据库
