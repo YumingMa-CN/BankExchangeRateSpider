@@ -2,6 +2,7 @@ SAVE_CSV = True  # 是否保存为 CSV 文件
 SAVE_DB = True  # 是否保存到数据库
 
 DB_URI = "mysql+pymysql://username:password@localhost:3306/database_name?charset=utf8"
+TIMEZONE = "Asia/Shanghai"
 
 BANKS = {
     'cib': {

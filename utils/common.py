@@ -1,7 +1,9 @@
 import time
+from zoneinfo import ZoneInfo
 from playwright.sync_api import sync_playwright
 from datetime import datetime
-from config import FIELD_MAP
+from config import FIELD_MAP, TIMEZONE
+
 
 
 # 全局变量
@@ -123,3 +125,11 @@ def row_to_db(row: dict, bank_code: str) -> dict:
         "bank": row.get(fmap['bank']),
         "ext_json": None, # remaining fields are not used in this version
     }
+  
+  
+def get_now_in_timezone(timezone: str = None, fmt: str = "%Y-%m-%d %H:%M:%S"):
+    """
+    返回指定时区的当前时间字符串，默认为config的TIMEZONE，支持自定义fmt
+    """
+    tz = timezone or TIMEZONE  # 如未指定，取config默认
+    return datetime.now(ZoneInfo(tz)).strftime(fmt)

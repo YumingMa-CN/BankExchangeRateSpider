@@ -1,4 +1,4 @@
-from utils.common import fetch_html, scale_rate
+from utils.common import fetch_html, scale_rate, get_now_in_timezone
 from config import BANKS, abbr2cname, digit2abbr
 import re
 import time
@@ -25,7 +25,7 @@ def _convert_api_data(root):
     需要依赖全局的 DIGIT_TO_ABBR 和 CURRENCY_CODE 字典
     """
     result = []
-    collecting_time = time.strftime("%Y-%m-%d %H:%M:%S", time.localtime())
+    collecting_time = get_now_in_timezone()
 
     for settlement in root.findall('ReferencePriceSettlement'):
         digit_code = settlement.findtext("Ofrd_Ccy_CcyCd", "").strip()  # 数字代码，如840
