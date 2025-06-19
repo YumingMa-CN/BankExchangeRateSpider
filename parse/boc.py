@@ -1,4 +1,4 @@
-from utils.common import fetch_html, scale_rate
+from utils.common import fetch_html, scale_rate, get_now_in_timezone
 from config import BANKS, cname2abbr
 import re
 import time
@@ -49,7 +49,7 @@ def _convert_html_data(rows):
     """
     输入_parse_page的结果rows，输出和API格式一致的标准化字典列表
     """
-    collecting_time = time.strftime("%Y-%m-%d %H:%M:%S", time.localtime())
+    collecting_time = get_now_in_timezone()
     result = []
     for row in rows:
         cname = row["cname"]

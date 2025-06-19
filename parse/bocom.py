@@ -1,4 +1,4 @@
-from utils.common import fetch_html, scale_rate
+from utils.common import fetch_html, scale_rate, get_now_in_timezone
 from config import BANKS
 import re
 import time
@@ -52,7 +52,7 @@ def _convert_html_data(parsed):
     """
     输入_parse_html_table的结果数据，输出和API格式一致的标准化字典列表
     """
-    collecting_time = time.strftime("%Y-%m-%d %H:%M:%S", time.localtime())
+    collecting_time = get_now_in_timezone()
     result = []
     update_time = parsed.get("update_time", "")
     for row in parsed["rows"]:

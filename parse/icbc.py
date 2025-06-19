@@ -1,4 +1,4 @@
-from utils.common import fetch_html, scale_rate
+from utils.common import fetch_html, scale_rate, get_now_in_timezone
 from config import BANKS
 import re
 import json
@@ -31,7 +31,7 @@ def _convert_api_data(data):
     result = []
     rows = data["data"]
     # headers = ["币种名称", "币种代码", "基准金额", "现汇买入价", "现钞买入价", "现汇卖出价", "现钞卖出价", "更新时间", "采集时间", "银行"]
-    collecting_time = time.strftime("%Y-%m-%d %H:%M:%S", time.localtime())
+    collecting_time = get_now_in_timezone()
     for row in rows:
         item = {
             "币种名称": row.get("currencyCHName", ""),

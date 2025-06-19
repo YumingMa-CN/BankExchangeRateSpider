@@ -1,4 +1,4 @@
-from utils.common import fetch_html
+from utils.common import fetch_html, get_now_in_timezone
 from config import BANKS
 import re
 import json
@@ -56,7 +56,7 @@ def _attach_metadata_to_table(table, update_time, **kwargs):
     time: 时间字符串
     kwargs: 预留，未来加其他元数据
     """
-    collecting_time = time.strftime("%Y-%m-%d %H:%M:%S", time.localtime())
+    collecting_time = get_now_in_timezone()
     for row in table:
         row['更新时间'] = update_time
         row['采集时间'] = collecting_time
