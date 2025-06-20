@@ -48,31 +48,94 @@ BankExchangeRateSpider/
 
 ## 快速开始
 
-### 1. 克隆仓库
+### 方案一：**使用 Docker 一键部署（推荐）**
 
-```bash
-git clone https://github.com/YumingMa-CN/BankExchangeRateSpider.git 
-cd BankExchangeRateSpider
-```
+1. **克隆仓库**
 
-### 2. 安装依赖
+   ```bash
+   git clone https://github.com/YumingMa-CN/BankExchangeRateSpider.git 
+   cd BankExchangeRateSpider
+   ```
 
-```bash
-pip install -r requirements.txt
-playwright install
-```
+2. **复制并配置环境变量文件**
 
-### 3. 配置数据库
+   ```bash
+   cp .env.example .env
+   ```
 
-编辑 `config.py`，根据你的 MySQL 服务器设置好数据库连接 URI。例如：
+   - **按需编辑** `.env` 文件，填写你的**数据库**等配置信息。
 
-```python
-DB_URI = "mysql+pymysql://username:password@localhost:3306/database_name?charset=utf8"
-```
+     
 
-- **请确保 username、password、database_name 填写正确，且此数据库已提前创建好。**
+3. **构建容器镜像**
 
-### 4. 字段映射维护（如无需扩展银行，则跳过本步骤）
+   ```bash
+   docker-compose build
+   ```
+
+4. **启动所有服务**
+
+   ```bash
+   docker-compose up
+   ```
+
+   - **数据库将在主机的 3307 端口暴露**（默认，可在 [docker-compose.yml](https://github.com/YumingMa-CN/BankExchangeRateSpider/blob/main/docker-compose.yml) 处按需更改），你可以通过 `localhost:3307` 访问数据库（账号密码以 `.env` 为准）。
+   - 关闭服务请用 `Ctrl+C`，如需后台运行加 `-d` 参数。
+
+### 方案二：手动方式（无 Docker 环境时）
+
+1. **克隆仓库**
+
+   ``` bash
+   git clone https://github.com/YumingMa-CN/BankExchangeRateSpider.git 
+   cd BankExchangeRateSpider
+   ```
+
+2. **安装依赖**
+
+   ``` bash
+   pip install -r requirements.txt
+   playwright install
+   ```
+
+3. **配置数据库**
+
+   编辑 `config.py`，按照你的 MySQL 服务器设置好数据库连接 URI，例如：
+
+   ```python
+   DB_URI = "mysql+pymysql://username:password@localhost:3306/database_name?charset=utf8"
+   ```
+
+   > 请确保 `username`、`password`、`database_name` 填写正确、数据库预先创建。
+
+4. **（开发或拓展时需）维护字段映射**
+
+   不增加新银行可跳过。详见 [字段映射维护](#字段映射维护).
+
+5. **初始化数据库表结构**
+
+   第一次运行或数据库表结构有调整时，需**初始化建表**：
+
+   ```bash
+   # 必须在项目根目录下运行！
+   python -m scripts.init_db
+   ```
+
+6. **启动采集主程序**
+
+   ```bash
+   python main.py
+   ```
+
+   - 程序自动获取和保存全部配置好的银行数据。
+
+   - 结果会写入 `data/` 目录下的对应 csv 文件。
+
+   - 同时批量导入到数据库 `exchange_rate` 表中。
+
+---
+
+## 字段映射维护
 
 config.py 需维护各银行字段与标准数据库字段的映射。
 
@@ -106,27 +169,6 @@ FIELD_MAP = {
 
 - 新增银行时，**务必参照已有格式补充对应字段**。
 - 字段名如有变更，也在这里统一修改即可。
-
-### 5. 初始化数据库表结构（首次部署或表结构变更后执行）
-
-第一次运行或数据库表结构有调整时，需**初始化建表**：
-
-```bash
-# 必须在项目根目录下运行！
-python -m scripts.init_db
-```
-
-- 此操作只需执行一次（或数据库结构有更动时）。
-
-### 6. 启动采集主程序
-
-```bash
-python main.py
-```
-
-- 程序自动获取和保存全部配置好的银行数据。
-- 结果会写入 `data/` 目录下的对应 csv 文件。
-- 同时批量导入到数据库 `exchange_rate` 表中。
 
 ------
 
