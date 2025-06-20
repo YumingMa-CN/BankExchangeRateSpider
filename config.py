@@ -1,7 +1,24 @@
+import os
+
 SAVE_CSV = True  # 是否保存为 CSV 文件
 SAVE_DB = True  # 是否保存到数据库
 
-DB_URI = "mysql+pymysql://username:password@localhost:3306/database_name?charset=utf8"
+
+def get_env(key, default=""):
+    return os.environ.get(key, default)
+
+DB_HOST = get_env("DB_HOST", "localhost")
+DB_PORT = get_env("DB_PORT", "3306")
+DB_NAME = get_env("DB_NAME", "exchangetest")
+DB_USER = get_env("DB_USER", "root")
+DB_PASSWORD = get_env("DB_PASSWORD", "yourpassword")
+DB_CHARSET = get_env("DB_CHARSET", "utf8")
+
+DB_URI = (
+    f"mysql+pymysql://{DB_USER}:{DB_PASSWORD}@{DB_HOST}:{DB_PORT}/{DB_NAME}"
+    f"?charset={DB_CHARSET}"
+)
+
 TIMEZONE = "Asia/Shanghai"
 
 BANKS = {

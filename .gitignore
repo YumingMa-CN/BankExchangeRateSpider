@@ -12,3 +12,4 @@ env/
 .idea/
 data/*
 !data/.gitkeep
+api/
