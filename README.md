@@ -110,7 +110,7 @@ BankExchangeRateSpider/
 
 4. **（开发或拓展时需）维护字段映射**
 
-   不增加新银行可跳过。详见 [字段映射维护](#字段映射维护).
+   不增加新银行可跳过。详见 [扩展与维护银行字段映射](#扩展与维护银行字段映射).
 
 5. **初始化数据库表结构**
 
@@ -135,50 +135,71 @@ BankExchangeRateSpider/
 
 ---
 
-## 字段映射维护
+## 扩展与维护银行字段映射
 
-config.py 需维护各银行字段与标准数据库字段的映射。
+要支持更多银行或调整字段，请只需在 **两处文件**更新即可，无需修改主程序：
 
-- **外层键**（如 `'boc'`, `'abc'` 等）：代表银行的缩写或**唯一代码**（必须和 parse 目录下采集脚本文件名一致）。
-- **内层键**：统一标准中的**字段英文名**，也是**数据库表字段名**。
-- **内层值**：该银行 `get_data()` 返回的数据字典（以及标准 CSV 文件）中的字段名，通常为统一设定的中文字段名，而**非原始网页表头名称**。所有银行应遵循相同的字段规范。如果该银行无此数据项，请填写 `None`。
+1. **[config.py](https://github.com/YumingMa-CN/BankExchangeRateSpider/blob/main/config.py) 维护银行配置及字段映射**
 
-例如：
+   - 在 `BANKS` 中加入新银行的模块名、URL、输出配置等条目。
 
-```python
-FIELD_MAP = {
-    # 中国银行 Bank Of China (boc)
-    'boc': {
-        "currency_name": "币种名称",
-        "currency_code": "币种代码",
-        "base_amount": "基准金额",
-        "refer_price": "参考价",      # 部分数据有参考价
-        "remit_buy": "现汇买入价",
-        "cash_buy": "现钞买入价",
-        "remit_sell": "现汇卖出价",
-        "cash_sell": "现钞卖出价",
-        "convert_price": "中行折算价",  # 特有
-        "mid_price": None,             # 无则置None
-        "update_time": "更新时间",
-        "crawl_time": "采集时间",
-        "bank": "银行"
-    },
-    # 其他银行配置同理（详见 config.py 示例）
-}
-```
+     - 例如：
 
-- 新增银行时，**务必参照已有格式补充对应字段**。
-- 字段名如有变更，也在这里统一修改即可。
+       ```python
+       BANKS = {
+           'cib': {
+               'code': 'cib',
+               'name': '兴业银行',
+               'url_business': 'https://personalbank.cib.com.cn/pers/main/pubinfo/ifxQuotationQuery.do',
+               'url_api': 'https://personalbank.cib.com.cn/pers/main/pubinfo/ifxQuotationQuery/list?_search=false&dataSet.nd'
+                          '={timestamp}&dataSet.rows=80&dataSet.page=1&dataSet.sidx=&dataSet.sort=asc',
+               'output': 'data/cib_fx_{timestamp}.csv',  # 输出文件名，{timestamp} 会被替换为当前时间戳
+               'visit_business': True,     # 是否访问业务页面，可以获取 api_url 中不包含的数据，并且可以通过访问以携带正常 cookies 等。
+               'visit_api': True,
+               'interval': 60, # 建议采集间隔时间（秒）
+           },  
+           # 其他银行
+       }
+       ```
 
-------
+   - 在 `FIELD_MAP` 中新增该银行的字段映射
 
-## 如何扩展新银行
+     - **外层键**（如 `'boc'`, `'abc'` 等）：代表银行的缩写或**唯一代码**（必须和 parse 目录下采集脚本文件名一致）。
 
-只需两步，无需改主程序！
+     - **内层键**：统一标准中的**字段英文名**，也是**数据库表字段名**。
 
-1. **在 config.py 的 BANKS、FIELD_MAP 中补充新银行配置**（模块名、采集url、输出文件名、字段映射等）。
-2. 在 `parse/` 目录下新增同名的 Python 文件（例如 `parse/minsheng.py`），实现标准 `get_data()` 接口。
-   - 返回字段须覆盖 FIELD_MAP 所列的标准项，未覆盖也可为 None。
+     - **内层值**：该银行 `get_data()` 返回的数据字典（以及标准 CSV 文件）中的字段名，通常为统一设定的中文字段名，而**非原始网页表头名称**。所有银行应遵循相同的字段规范。如果该银行无此数据项，请填写 `None`。
+
+     - 例如：
+
+       ```python
+       FIELD_MAP = {
+           # 中国银行 Bank Of China (boc)
+           'boc': {
+               "currency_name": "币种名称",
+               "currency_code": "币种代码",
+               "base_amount": "基准金额",
+               "refer_price": "参考价",      # 部分数据有参考价
+               "remit_buy": "现汇买入价",
+               "cash_buy": "现钞买入价",
+               "remit_sell": "现汇卖出价",
+               "cash_sell": "现钞卖出价",
+               "convert_price": "中行折算价",  # 特有
+               "mid_price": None,             # 无则置None
+               "update_time": "更新时间",
+               "crawl_time": "采集时间",
+               "bank": "银行"
+           },
+           # 其他银行配置同理（详见 config.py 示例）
+       }
+       ```
+
+
+2. **`parse/` 目录下编写新银行脚本**
+
+   - 以新银行缩写为文件名（如民生银行： `parse/cmbc.py`），实现标准 `get_data()` 接口，返回字段需与 `FIELD_MAP` 标准项对应，缺失可用 `None`。
+
+   - 脚本与数据解析逻辑完全解耦，便于维护和后续拓展。
 
 ------
 
@@ -193,6 +214,12 @@ FIELD_MAP = {
   - 配置 ```BANKS``` 在 config.py 维护，参照现有模板即可。
 
 ------
+
+## Star History
+
+[![Star History Chart](https://api.star-history.com/svg?repos=YumingMa-CN/BankExchangeRateSpider&type=Date)](https://www.star-history.com/#YumingMa-CN/BankExchangeRateSpider&Date)
+
+---
 
 ## 免责声明 
 
