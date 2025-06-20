@@ -1,5 +1,7 @@
 # BankExchangeRateSpider
 
+<p align="center">   <img src="https://img.shields.io/badge/License-MIT-yellow.svg" alt="License: MIT">&nbsp;&nbsp;   <a href="README-en.md">     <img src="https://img.shields.io/badge/Switch%20Language-En-blue" alt="Switch Language">   </a> </p>
+
 ## 介绍
 
 **BankExchangeRateSpider** 是一个支持多家主流银行外汇牌价自动采集、可实时保存到本地与数据库的开源爬虫工具。
