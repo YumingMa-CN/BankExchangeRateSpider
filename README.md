@@ -1,6 +1,6 @@
 # BankExchangeRateSpider
 
-<p align="center">   <img src="https://img.shields.io/badge/License-MIT-yellow.svg" alt="License: MIT">&nbsp;&nbsp;   <a href="README-en.md">     <img src="https://img.shields.io/badge/Switch%20Language-En-blue" alt="Switch Language">   </a> </p>
+<p align="center">   <img src="https://img.shields.io/badge/License-MIT-yellow.svg" alt="License: MIT">&nbsp;&nbsp;   <a href="README-en.md">     <img src="https://img.shields.io/badge/Switch%20Language-English-blue" alt="Switch Language">   </a> </p>
 
 ## 介绍
 

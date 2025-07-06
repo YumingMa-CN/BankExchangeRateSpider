@@ -24,6 +24,7 @@ def fetch_html(url_business,
                visit_business=True,
                visit_api=True,
                timeout=10000,
+               max_try=2
                ):
     """
     用 playwright 获取网页内容。
@@ -31,9 +32,10 @@ def fetch_html(url_business,
     参数说明：
         url_business (str): 业务官网的网址
         url_api (str): API 的网址
-        timeout (int): 页面加载超时时间（毫秒）
         visit_business (bool): 是否在访问 api_url 前先访问 business_url,可用于获取api_url里没有的数据，亦可获取 cookies
         visit_api (bool): 是否需要访问 api_url （有的业务没有 API）
+        timeout (int): 页面加载超时时间（毫秒）
+        max_try(int) #本 地操作最多尝试次数
     """
     if not url_business and not url_api:
         raise ValueError("至少提供一个URL")
@@ -43,21 +45,49 @@ def fetch_html(url_business,
     api_content = ""
 
     sleep_time = 5
-    browser = get_browser()
-    context = browser.new_context()
-    page = context.new_page()
-    if url_business and visit_business:
-        page.goto(url_business, timeout=timeout)
-        time.sleep(sleep_time)
-        html = page.content()
-        # print(html)
-    if url_api and visit_api:
-        page.goto(url_api, timeout=timeout)
-        time.sleep(sleep_time)
-        api_content = page.content()
-    page.close()
-    context.close()
-    return html, api_content
+    attempt = 0
+    restart_browser_limit = 2 # 尝试 2 次后还失败就重启browser
+
+
+    while attempt < max_try + restart_browser_limit:
+        try:
+            browser = get_browser()
+            context = browser.new_context()
+            page = context.new_page()
+            html, api_content = "", ""
+            if url_business and visit_business:
+                page.goto(url_business, timeout=timeout)
+                time.sleep(sleep_time)
+                html = page.content()
+            if url_api and visit_api:
+                page.goto(url_api, timeout=timeout)
+                time.sleep(sleep_time)
+                api_content = page.content()
+            page.close()
+            context.close()
+            return html, api_content
+
+        except Exception as e:
+            attempt += 1
+            msg = str(e)
+            print(f"[尝试第{attempt}次出现异常] {msg}")
+            # 只有在触发相关关闭或"browser"关键字相关报错时才考虑重启
+            if (
+                "closed" in msg.lower()
+                or "browser has been closed" in msg.lower()
+                or "target page, context or browser has been closed" in msg.lower()
+            ):
+                if attempt >= max_try:
+                    print("[重启browser] 多次失败后重启Playwright，继续重试……")
+                    shutdown_playwright()
+                else:
+                    time.sleep(1)
+            else:
+                # 其它异常直接抛出，不盲目重启
+                raise
+
+    # 所有自动重启都没救活，直接报错
+    raise RuntimeError("网页采集失败：多次尝试和浏览器重启后仍然失败。")
 
 
 def shutdown_playwright():

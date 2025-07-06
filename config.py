@@ -1,4 +1,6 @@
 import os
+from dotenv import load_dotenv
+
 
 SAVE_CSV = True  # 是否保存为 CSV 文件
 SAVE_DB = True  # 是否保存到数据库
@@ -6,6 +8,9 @@ SAVE_DB = True  # 是否保存到数据库
 
 def get_env(key, default=""):
     return os.environ.get(key, default)
+
+
+load_dotenv()
 
 DB_HOST = get_env("DB_HOST", "localhost")
 DB_PORT = get_env("DB_PORT", "3306")
