@@ -4,7 +4,7 @@ from dotenv import load_dotenv
 
 SAVE_CSV = True  # 是否保存为 CSV 文件
 SAVE_DB = True  # 是否保存到数据库
-
+SAVE_API = False  # 是否请求 API(可通过API使用云数据库等服务), 如果为 True 则需要配置 API_PROVIDERS
 
 def get_env(key, default=""):
     return os.environ.get(key, default)
@@ -23,6 +23,21 @@ DB_URI = (
     f"mysql+pymysql://{DB_USER}:{DB_PASSWORD}@{DB_HOST}:{DB_PORT}/{DB_NAME}"
     f"?charset={DB_CHARSET}"
 )
+
+API_PROVIDERS = [
+    {
+        "enable": True,
+        "name": "cloudflare",
+        "url": os.getenv("CF_API_URL"),
+        "key": os.getenv("CF_API_KEY"),
+        "headers": {
+            "Authorization": "Bearer {key}",
+            "Content-Type": "application/json"
+        }
+    },
+
+    # ...可继续拓展
+]
 
 TIMEZONE = "Asia/Shanghai"
 

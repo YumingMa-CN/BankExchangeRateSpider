@@ -1,7 +1,9 @@
 import importlib
 import time
-from config import BANKS, SAVE_CSV, SAVE_DB
+from config import BANKS, SAVE_CSV, SAVE_DB, SAVE_API, API_PROVIDERS
 from storage.save_csv import save_to_csv
+from storage.save_db import save_to_db
+from storage.save_api import save_to_api
 from db.operations import save_exchange_rates
 from utils.common import row_to_db
 
@@ -35,11 +37,20 @@ if __name__ == '__main__':
 
                 if SAVE_DB:
                     # 转换字段 保存到数据库
-                    db_batch = [row_to_db(item, bank_code) for item in data]
-                    save_exchange_rates(db_batch)
-
+                    save_to_db(data, bank_code)
                     print("数据已写入数据库\n")
                     last_collect_time[bank_code] = now
+
+                if SAVE_API:
+                    for api_conf in API_PROVIDERS:
+                        if not api_conf.get('enable', False):
+                            continue  # 跳过未开启的API
+                        try:
+                            save_to_api(data, bank_code, api_conf)
+                            print(f"数据已上传到 {api_conf['name']} 平台\n")
+                        except Exception as api_err:
+                            print(f"上传到 {api_conf['name']} 出错：{api_err}\n")
+
 
             except Exception as e:
                 print(f"{settings['name']} 抓取/保存出错：{e}\n")

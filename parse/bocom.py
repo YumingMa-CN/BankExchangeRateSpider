@@ -1,9 +1,10 @@
+__all__ = ['get_data']
+
 from utils.common import fetch_html, scale_rate, get_now_in_timezone
 from config import BANKS
 import re
 import time
 
-__all__ = ['get_data']
 CODE = 'bocom'
 
 

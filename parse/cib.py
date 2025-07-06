@@ -1,10 +1,11 @@
+__all__ = ['get_data']
+
 from utils.common import fetch_html, get_now_in_timezone
 from config import BANKS
 import re
 import json
 import time
 
-__all__ = ['get_data']
 CODE = 'cib'
 
 

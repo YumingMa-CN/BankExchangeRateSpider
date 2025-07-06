@@ -1,10 +1,11 @@
+__all__ = ['get_data']
+
 from utils.common import fetch_html, scale_rate, get_now_in_timezone
 from config import BANKS, abbr2cname, digit2abbr
 import re
 import time
 import xml.etree.ElementTree as ET
 
-__all__ = ['get_data']
 CODE = 'ccb'
 
 
